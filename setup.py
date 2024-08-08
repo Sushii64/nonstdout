@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='nonstdout',
-    version='1.0.0',
+    version='1.0.1',
     author='Sushii64',
     packages=find_packages(),
     description='A Python library for making printing cooler with colours and loading bars.',
