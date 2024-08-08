@@ -1,4 +1,5 @@
 import time
+import threading
 from colorama import *
 from getpass import getpass
 
@@ -136,12 +137,13 @@ pause
         time.sleep(pause)
     print(f"{beg}{blocks}{end}")
 
-def spinner(duration: int, symbols: list[str] | None = ["|", "/", "-", "\\"], finished_symbol: str | None = "✓", before_text: str | None = "", after_text: str | None = ""):
-    '''
-Creates a loading spinner that lasts for as long as you want.
+spinner_active = False
+spinner_thread = None
 
-duration
-  how long the spinner lasts, no default, required
+def start_spinner(symbols: list[str] | None = ["|", "/", "-", "\\"], before_text: str | None = "", after_text: str | None = ""):
+    '''
+Creates a loading spinner that lasts forever until stopped.
+
 symbols
   the symbols that the spinner goes through to animate, default spinner
 finished_symbol
@@ -151,13 +153,35 @@ before_text
 after_text
   what to put after the spinner, e.g. "]", default nothing
     '''
-    elapsed = 0
+    global spinner_active, spinner_thread
 
-    while True:
-        elapsed += 0.1
-        time.sleep(0.1)
-        if elapsed >= duration:
-            break
-        else:
-            print(f"{before_text}{symbols[int((elapsed * 10) % 4)]}{after_text}", end="\r")
-    print(f"{before_text}{finished_symbol}{after_text}")
+    spinner_active = True
+
+    def spin():
+        elapsed = 0
+        while spinner_active:
+            print(f"{before_text}{symbols[int((elapsed * 10) % len(symbols))]}{after_text}", end="\r")
+            elapsed += 0.1
+            time.sleep(0.1)
+
+    spinner_thread = threading.Thread(target=spin)
+    spinner_thread.start()
+
+def stop_spinner(finished_symbol: str | None = "✓", before_text: str | None = "", after_text: str | None = ""):
+    '''
+Stops the currently running spinner, if any.
+Note: for the best results, use the same parameters you put on the start_spinner function, if any.
+
+finished_symbol
+  the symbol that shows up when the spinner is done, default ✓
+before_text
+  what to put before the spinner, e.g. "loading... [", default nothing
+after_text
+  what to put after the spinner, e.g. "]", default nothing
+    '''
+    global spinner_active, spinner_thread
+
+    spinner_active = False
+    if spinner_thread:
+        spinner_thread.join()
+        print(f"{before_text}{finished_symbol}{after_text}")
