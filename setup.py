@@ -10,6 +10,9 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/Sushii64/nonstdout',
     license='GNU GPL V3',
+    install_requires=[
+        "colorama==0.4.6"
+    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
